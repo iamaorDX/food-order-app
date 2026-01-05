@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สั่งอาหาร</title>
+
+<style>
+@font-face {
+  font-family: 'Google Sans';
+  src: url('./Google_Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Google Sans', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  padding-bottom: 80px;
+}
+
+/* Header */
+header {
+  background: #ff6b00;
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+}
+
+#tableInfo {
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Category */
+.category-bar {
+  display: flex;
+  background: #fff;
+}
+
+.category-bar button {
+  flex: 1;
+  border: none;
+  padding: 12px;
+  background: #eee;
+  font-size: 15px;
+}
+
+.category-bar button.active {
+  background: #ff6b00;
+  color: #fff;
+}
+
+/* Menu */
+.menu-list {
+  padding: 12px;
+}
+
+.menu-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-item button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #ff6b00;
+  color: #fff;
+  font-size: 16px;
+}
+
+/* Cart bar */
+.cart-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #222;
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10vh auto;
+  width: 90%;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.cart-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.qty-btn {
+  background: #ddd;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.qty-number {
+  margin: 0 6px;
+}
+
+.total {
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.order-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+
+.close-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ddd;
+  border: none;
+  border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>🍳 ร้านอาหารตามสั่ง</h2>
+  <div id="tableInfo"></div>
+</header>
+
+<div class="category-bar">
+  <button class="active" onclick="filterMenu('food')">อาหารตามสั่ง</button>
+  <button onclick="filterMenu('drink')">เครื่องดื่ม</button>
+</div>
+
+<div class="menu-list" id="menuList"></div>
+
+<div class="cart-bar" onclick="openCart()">
+  🛒 ตะกร้า <span id="cartCount">0</span> รายการ
+</div>
+
+<!-- Cart Modal -->
+<div class="modal" id="cartModal">
+  <div class="modal-content">
+    <h3>รายการที่สั่ง</h3>
+    <div id="cartItems"></div>
+
+    <div class="total">รวม: <span id="totalPrice">0</span> บาท</div>
+
+    <textarea id="customerNote" placeholder="หมายเหตุ เช่น ไม่ใส่พริก"></textarea>
+
+    <button class="order-btn" onclick="submitOrder()">สั่งอาหาร</button>
+    <button class="close-btn" onclick="closeCart()">ปิด</button>
+  </div>
+</div>
+
+<script>
+const menuData = [
+  { id: 1, name: "ข้าวกะเพราหมู", price: 50, category: "food" },
+  { id: 2, name: "ข้าวผัดหมู", price: 50, category: "food" },
+  { id: 3, name: "ไข่ดาว", price: 10, category: "food" },
+  { id: 4, name: "ชาเย็น", price: 25, category: "drink" },
+  { id: 5, name: "น้ำอัดลม", price: 20, category: "drink" }
+];
+
+let cart = [];
+let currentCategory = "food";
+const tableNo = new URLSearchParams(window.location.search).get("table") || "-";
+
+document.getElementById("tableInfo").innerText = `โต๊ะ ${tableNo}`;
+
+function renderMenu() {
+  const list = document.getElementById("menuList");
+  list.innerHTML = "";
+
+  menuData
+    .filter(m => m.category === currentCategory)
+    .forEach(item => {
+      list.innerHTML += `
+        <div class="menu-item">
+          <div>
+            <strong>${item.name}</strong><br>${item.price} บาท
+          </div>
+          <button onclick="addToCart(${item.id})">+</button>
+        </div>
+      `;
+    });
+}
+
+function filterMenu(cat) {
+  currentCategory = cat;
+  document.querySelectorAll(".category-bar button")
+    .forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  renderMenu();
+}
+
+function addToCart(id) {
+  const item = menuData.find(i => i.id === id);
+  const found = cart.find(i => i.id === id);
+  found ? found.qty++ : cart.push({ ...item, qty: 1 });
+  updateCartCount();
+}
+
+function updateCartCount() {
+  document.getElementById("cartCount").innerText =
+    cart.reduce((s, i) => s + i.qty, 0);
+}
+
+function openCart() {
+  const box = document.getElementById("cartItems");
+  box.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(i => {
+    total += i.price * i.qty;
+    box.innerHTML += `
+      <div class="cart-row">
+        <span>${i.name}</span>
+        <div>
+          <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
+          <span class="qty-number">${i.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${i.id},1)">+</button>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("totalPrice").innerText = total;
+  document.getElementById("cartModal").style.display = "block";
+}
+
+function changeQty(id, diff) {
+  const item = cart.find(i => i.id === id);
+  item.qty += diff;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  updateCartCount();
+  openCart();
+}
+
+function closeCart() {
+  document.getElementById("cartModal").style.display = "none";
+}
+
+function submitOrder() {
+  if (cart.length === 0) {
+    alert("ยังไม่มีรายการอาหาร");
+    return;
+  }
+
+  const payload = {
+    table: tableNo,
+    items: cart,
+    note: document.getElementById("customerNote").value
+  };
+
+  fetch("PASTE_WEB_APP_URL_HERE", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+  alert("ส่งออเดอร์เรียบร้อย");
+  cart = [];
+  updateCartCount();
+  closeCart();
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>

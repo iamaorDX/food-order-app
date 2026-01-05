@@ -1,0 +1,144 @@
+@font-face {
+  font-family: 'Google Sans';
+  src: url('./Google_Sans/GoogleSans-VariableFont_GRAD,opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Google Sans', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  padding-bottom: 80px;
+}
+
+/* Header */
+.top-bar {
+  background: #ff6b00;
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+}
+
+/* Category */
+.category-bar {
+  display: flex;
+  background: #fff;
+}
+
+.category-bar button {
+  flex: 1;
+  border: none;
+  padding: 12px;
+  background: #eee;
+  font-size: 15px;
+}
+
+.category-bar button.active {
+  background: #ff6b00;
+  color: #fff;
+}
+
+/* Menu */
+.menu-list {
+  padding: 12px;
+}
+
+.menu-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu-info {
+  flex: 1;
+}
+
+.menu-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menu-actions button {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #ff6b00;
+  color: #fff;
+}
+
+/* Cart bar */
+.cart-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #222;
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10vh auto;
+  width: 90%;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.total {
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+textarea {
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.order-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.close-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ddd;
+  border: none;
+  border-radius: 8px;
+}
+.qty-btn {
+  background: #ddd;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.qty-number {
+  margin: 0 6px;
+}
